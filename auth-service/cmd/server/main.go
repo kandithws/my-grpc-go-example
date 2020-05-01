@@ -6,8 +6,9 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/kandithws/sharespace-api/auth-service/src/common/db"
 	authHandler "github.com/kandithws/sharespace-api/auth-service/src/handler"
-	"github.com/kandithws/sharespace-api/common/db"
+
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -25,11 +26,13 @@ func main() {
 	// Return Service Interface
 	initConfig()
 	server := grpc.NewServer()
+
 	dbCfg := db.NewDBConfig()
 	dbCfg.Username = "kandithws"
 	dbCfg.Password = "gunto1166"
-	dbCfg.DatabaseName = "auth_service"
-	db.InitDB(dbCfg)
+	dbCfg.DatabaseName = "sharespace_auth_service"
+
+	db.InitDB(&dbCfg)
 	authHandler.NewAuthGrpcHandler(server)
 	reflection.Register(server)
 	uri := fmt.Sprintf(":%s", viper.GetString("PORT"))

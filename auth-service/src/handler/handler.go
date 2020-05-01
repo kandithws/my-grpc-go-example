@@ -4,17 +4,19 @@ import (
 	"context"
 
 	"github.com/kandithws/sharespace-api/auth-service/src/genproto"
+	"github.com/kandithws/sharespace-api/auth-service/src/store"
 	"google.golang.org/grpc"
 )
 
 func NewAuthGrpcHandler(gserver *grpc.Server) {
-	s := &server{}
+	s := &server{userStore: store.NewUserStore()}
 
 	genproto.RegisterAuthServiceServer(gserver, s)
 }
 
 // AuthServiceHandler implements genproto.AuthServiceServer
 type server struct {
+	userStore *store.UserStore
 }
 
 func (h *server) Register(context.Context, *genproto.RegisterRequest) (*genproto.RegisterResponse, error) {
