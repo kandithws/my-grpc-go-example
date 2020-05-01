@@ -18,13 +18,13 @@ type server struct {
 }
 
 func (h *server) Register(context.Context, *genproto.RegisterRequest) (*genproto.RegisterResponse, error) {
-	return nil, nil
+	return &genproto.RegisterResponse{}, nil
 }
 
 func (h *server) Login(context.Context, *genproto.LoginRequest) (*genproto.LoginResponse, error) {
-	return nil, nil
+	return &genproto.LoginResponse{}, nil
 }
 
 func (h *server) GetUser(context.Context, *genproto.GetUserRequest) (*genproto.User, error) {
-	return nil, nil
+	return &genproto.User{}, nil
 }
