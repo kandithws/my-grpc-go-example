@@ -5,7 +5,7 @@ package genproto;
 import "google/protobuf/timestamp.proto";
 
 message User {
-    string id = 1;
+    string gid = 1;
     string username = 2;
     string email = 3;
 }

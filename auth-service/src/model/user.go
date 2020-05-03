@@ -1,12 +1,25 @@
 package model
 
 import (
-	"github.com/jinzhu/gorm"
+	"time"
+
+	"github.com/rs/xid"
 )
 
+type BaseModel struct {
+	ID        uint `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type User struct {
-	gorm.Model
-	Username string
+	BaseModel
+	XID      string `json:"gid" gorm:"unique; not null"`
+	Username string `json:"username" gorm:"unique; not null"`
 	Password string
-	Email    string
+	Email    string `json:"email" gorm:"unique; not null"`
+}
+
+func (u *User) BeforeCreate() {
+	u.XID = xid.New().String()
 }

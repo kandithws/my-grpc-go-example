@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/kandithws/sharespace-api/auth-service/src/common/db"
 	authHandler "github.com/kandithws/sharespace-api/auth-service/src/handler"
@@ -16,10 +18,33 @@ import (
 )
 
 func initConfig() {
+
+	appdir, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath(appdir)
 	viper.SetDefault("PORT", "8081")
 	viper.SetDefault("GO_ENV", "development")
 
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error loading config file: %s", err))
+	}
+	viper.Set("app.root", appdir)
+}
+
+func makeDBConfig() *db.DBConfig {
+	dbCfg := db.NewDBConfig()
+	dbCfg.Username = viper.GetString("db.username")
+	dbCfg.Password = viper.GetString("db.password")
+	dbCfg.DatabaseName = viper.GetString("db.db_name")
+	return &dbCfg
 }
 
 func main() {
@@ -27,12 +52,7 @@ func main() {
 	initConfig()
 	server := grpc.NewServer()
 
-	dbCfg := db.NewDBConfig()
-	dbCfg.Username = "kandithws"
-	dbCfg.Password = "gunto1166"
-	dbCfg.DatabaseName = "sharespace_auth_service"
-
-	db.InitDB(&dbCfg)
+	db.InitDB(makeDBConfig())
 	authHandler.NewAuthGrpcHandler(server)
 	reflection.Register(server)
 	uri := fmt.Sprintf(":%s", viper.GetString("PORT"))
