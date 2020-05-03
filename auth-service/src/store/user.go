@@ -39,7 +39,9 @@ func makeUniqueConstriantError(err error) error {
 }
 
 func (s *UserStore) CreateUser(m *model.User) error {
+
 	err := s.db.Create(m).Error
+
 	if err != nil {
 		// Check for specific error types
 		e := makeUniqueConstriantError(err)
@@ -47,6 +49,7 @@ func (s *UserStore) CreateUser(m *model.User) error {
 			return e
 		}
 	}
+
 	return err
 }
 

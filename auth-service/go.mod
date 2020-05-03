@@ -3,6 +3,7 @@ module github.com/kandithws/sharespace-api/auth-service
 go 1.13
 
 require (
+	github.com/go-playground/validator/v10 v10.2.0
 	github.com/golang/protobuf v1.4.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kandithws/sharespace-api v0.0.0-20200425141007-b9e5d1d4b310 // indirect
