@@ -99,6 +99,7 @@ github.com/kandithws/sharespace-api v0.0.0-20200425141007-b9e5d1d4b310/go.mod h1
 github.com/kandithws/sharespace-api v0.0.0-20200501092723-194b675b207b h1:qXQirSurtheQCAeajEMpDyq9NmWiNp0T5CoulTcep/c=
 github.com/kandithws/sharespace-api v0.0.0-20200503133506-951301767894 h1:6+BRU2IPGM4u9QxNHH/r1HnnHz/aXbgejhoBtegNvjU=
 github.com/kandithws/sharespace-api v0.0.0-20200504124751-7ffb8f968d6f h1:kW8XXQj98qwjore+T4dBnCGlWkSLJ70CKKFxt9ey5zg=
+github.com/kandithws/sharespace-api v0.0.0-20200504135450-4ae05d1f1d87 h1:51DAH9RGvVoNwSyqZslhb/iIOe10dM6lWaKcMOKPlpo=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
 github.com/konsorten/go-windows-terminal-sequences v1.0.1/go.mod h1:T0+1ngSBFLxvqU3pZ+m/2kptfBszLMUkC4ZK/EgS/cQ=

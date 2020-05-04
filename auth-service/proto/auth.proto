@@ -1,13 +1,17 @@
 syntax = "proto3";
 
-package genproto;
+package auth;
+
+option go_package = ".;authproto";
 
 import "google/protobuf/timestamp.proto";
 
 message User {
-    string gid = 1;
+    string id = 1;
     string username = 2;
     string email = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
 }
 
 message RegisterRequest {
@@ -29,6 +33,7 @@ message LoginRequest {
 
 message LoginResponse {
     bool authorized = 1;
+    User user = 2;
 }
 
 message GetUserRequest {

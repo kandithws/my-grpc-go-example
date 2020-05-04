@@ -4,7 +4,7 @@ services:
     build: ./api-gateway
     image: sharespace-api/api-gateway
     environment:
-      - AUTH_SERVICE__URL=auth-service.local:8082
+      - AUTH_SERVICE__URL=auth-service:8082
       - PORT=8081
     ports:
       - "8081:8081"
@@ -16,4 +16,6 @@ services:
       - DB__HOST=host.docker.internal
     ports:
       - "8082:8082"
+    links:
+      - api-gateway
     

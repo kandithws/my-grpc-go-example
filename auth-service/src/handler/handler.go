@@ -8,7 +8,7 @@ import (
 	"reflect"
 
 	"github.com/kandithws/sharespace-api/auth-service/src/common/validator"
-	"github.com/kandithws/sharespace-api/auth-service/src/genproto"
+	authproto "github.com/kandithws/sharespace-api/auth-service/src/genproto"
 	"github.com/kandithws/sharespace-api/auth-service/src/model"
 	"github.com/kandithws/sharespace-api/auth-service/src/store"
 	"golang.org/x/crypto/bcrypt"
@@ -20,7 +20,7 @@ import (
 func NewAuthGrpcHandler(gserver *grpc.Server) {
 	s := &handler{userStore: store.NewUserStore(), val: validator.NewValidator()}
 
-	genproto.RegisterAuthServiceServer(gserver, s)
+	authproto.RegisterAuthServiceServer(gserver, s)
 }
 
 // AuthServiceHandler implements genproto.AuthServiceServer
@@ -68,7 +68,7 @@ func hashAndSalt(pwdStr string) string {
 	return string(hash)
 }
 
-func (h *handler) Register(c context.Context, req *genproto.RegisterRequest) (*genproto.RegisterResponse, error) {
+func (h *handler) Register(c context.Context, req *authproto.RegisterRequest) (*authproto.RegisterResponse, error) {
 	m := &model.User{}
 	// Bind
 	if err := bindJSON(req, m); err != nil {
@@ -85,7 +85,7 @@ func (h *handler) Register(c context.Context, req *genproto.RegisterRequest) (*g
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &genproto.RegisterResponse{Message: "OK"}, nil
+	return &authproto.RegisterResponse{Message: "OK"}, nil
 }
 
 func comparePasswords(hashedPwd string, plainPwdString string) bool {
@@ -104,7 +104,7 @@ func comparePasswords(hashedPwd string, plainPwdString string) bool {
 	return true
 }
 
-func (h *handler) Login(c context.Context, req *genproto.LoginRequest) (*genproto.LoginResponse, error) {
+func (h *handler) Login(c context.Context, req *authproto.LoginRequest) (*authproto.LoginResponse, error) {
 
 	// Find by username
 	user, err := h.userStore.FindUserBy(&model.User{Username: req.Username})
@@ -122,11 +122,16 @@ func (h *handler) Login(c context.Context, req *genproto.LoginRequest) (*genprot
 	}
 
 	// Generate JWT token at API Gateway
+	userRes := &authproto.User{}
 
-	return &genproto.LoginResponse{Authorized: true}, nil
+	if err := bindJSON(user, userRes); err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &authproto.LoginResponse{Authorized: true, User: userRes}, nil
 }
 
-func (h *handler) GetUser(c context.Context, req *genproto.GetUserRequest) (*genproto.User, error) {
+func (h *handler) GetUser(c context.Context, req *authproto.GetUserRequest) (*authproto.User, error) {
 	m := &model.User{}
 
 	if err := bindJSON(req, m); err != nil {
@@ -143,7 +148,7 @@ func (h *handler) GetUser(c context.Context, req *genproto.GetUserRequest) (*gen
 	}
 
 	// Bind response
-	res := &genproto.User{}
+	res := &authproto.User{}
 	if err := bindJSON(user, res); err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}

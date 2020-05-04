@@ -1,20 +1,20 @@
 package auth
 
 import (
-	"github.com/kandithws/sharespace-api/api-gateway/src/genproto"
+	authproto "github.com/kandithws/sharespace-api/api-gateway/src/genproto/auth-service"
 	"google.golang.org/grpc"
 )
 
 type AuthStore struct {
-	client genproto.AuthServiceClient
+	client authproto.AuthServiceClient
 }
 
-func initAuthServiceClient(url string) (genproto.AuthServiceClient, error) {
+func initAuthServiceClient(url string) (authproto.AuthServiceClient, error) {
 	conn, err := grpc.Dial(url, grpc.WithInsecure())
 	if err != nil {
 		return nil, err
 	}
-	return genproto.NewAuthServiceClient(conn), nil
+	return authproto.NewAuthServiceClient(conn), nil
 }
 
 func NewAuthStore(serviceURL string) *AuthStore {
@@ -25,6 +25,6 @@ func NewAuthStore(serviceURL string) *AuthStore {
 	return &AuthStore{client: cl}
 }
 
-func (s *AuthStore) ServiceClient() genproto.AuthServiceClient {
+func (s *AuthStore) ServiceClient() authproto.AuthServiceClient {
 	return s.client
 }
