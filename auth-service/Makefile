@@ -1,6 +1,6 @@
 
 server:
-	@go run cmd/server/main.go
+	@go run main.go
 
 client:
 	@go run cmd/client/main.go

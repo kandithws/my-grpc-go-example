@@ -59,6 +59,10 @@ func NewGRPCServerLogger() *logrus.Entry {
 
 func makeDBConfig() *db.DBConfig {
 	dbCfg := db.NewDBConfig()
+	viper.SetDefault("db.host", "127.0.0.1")
+	viper.SetDefault("db.port", "5432")
+	dbCfg.Host = viper.GetString("db.host")
+	dbCfg.Port = viper.GetString("db.port")
 	dbCfg.Username = viper.GetString("db.username")
 	dbCfg.Password = viper.GetString("db.password")
 	dbCfg.DatabaseName = viper.GetString("db.db_name")
