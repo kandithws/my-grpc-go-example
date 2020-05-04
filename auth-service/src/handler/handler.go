@@ -39,7 +39,7 @@ func bindJSON(in interface{}, out interface{}) error {
 	}
 
 	if reflect.ValueOf(out).IsNil() {
-		return errors.New("Output ptr not instantiated")
+		return ErrRequestBindingError
 	}
 
 	byt, _ := json.Marshal(in)

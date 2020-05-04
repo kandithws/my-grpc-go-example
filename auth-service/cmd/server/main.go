@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+
 	"net"
 	"os"
 	"os/signal"
@@ -10,7 +10,12 @@ import (
 
 	"github.com/kandithws/sharespace-api/auth-service/src/common/db"
 	authHandler "github.com/kandithws/sharespace-api/auth-service/src/handler"
+	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -18,7 +23,6 @@ import (
 )
 
 func initConfig() {
-
 	appdir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +30,7 @@ func initConfig() {
 
 	viper.SetConfigName("config")
 	viper.AddConfigPath(appdir)
-	viper.SetDefault("PORT", "8081")
+	viper.SetDefault("PORT", "8082")
 	viper.SetDefault("GO_ENV", "development")
 
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
@@ -39,6 +43,20 @@ func initConfig() {
 	viper.Set("app.root", appdir)
 }
 
+func initDefaultLogger() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: false,
+		FullTimestamp: true,
+	})
+}
+
+func NewGRPCServerLogger() *logrus.Entry {
+	serverLogger := log.New()
+	serverLogger.SetFormatter(&log.JSONFormatter{})
+	serverLogger.SetReportCaller(true)
+	return log.NewEntry(serverLogger)
+}
+
 func makeDBConfig() *db.DBConfig {
 	dbCfg := db.NewDBConfig()
 	dbCfg.Username = viper.GetString("db.username")
@@ -49,12 +67,25 @@ func makeDBConfig() *db.DBConfig {
 
 func main() {
 	// Return Service Interface
+	initDefaultLogger()
 	initConfig()
-	server := grpc.NewServer()
+	logrusEntry := NewGRPCServerLogger()
+	server := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(
+			grpc_ctxtags.UnaryServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+			grpc_logrus.UnaryServerInterceptor(logrusEntry),
+		),
+		grpc_middleware.WithStreamServerChain(
+			grpc_ctxtags.StreamServerInterceptor(grpc_ctxtags.WithFieldExtractor(grpc_ctxtags.CodeGenRequestFieldExtractor)),
+			grpc_logrus.StreamServerInterceptor(logrusEntry),
+		),
+	)
 
 	db.InitDB(makeDBConfig())
+
 	authHandler.NewAuthGrpcHandler(server)
 	reflection.Register(server)
+
 	uri := fmt.Sprintf(":%s", viper.GetString("PORT"))
 	list, err := net.Listen("tcp", uri)
 	if err != nil {
@@ -67,7 +98,7 @@ func main() {
 	go func() {
 		for range c {
 			// sig is a ^C, handle it
-			fmt.Println("shutting down gRPC server...")
+			log.Infof("shutting down gRPC server...")
 
 			server.GracefulStop()
 
@@ -75,6 +106,6 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("Serving on grpc server on %s\n", uri)
+	log.Infof("Serving on grpc server on %s\n", uri)
 	server.Serve(list)
 }

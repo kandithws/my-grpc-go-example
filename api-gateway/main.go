@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -35,26 +36,28 @@ func initConfig() {
 		log.Fatal(err)
 	}
 
-	// viper.AddConfigPath("config")
-
-	viper.SetDefault("PORT", "8080")
+	viper.SetConfigName("config")
+	viper.AddConfigPath(appdir)
+	viper.SetDefault("PORT", "8081")
 	viper.SetDefault("GO_ENV", "development")
 
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "__"))
 	viper.AutomaticEnv()
-	// err2 := viper.ReadInConfig()
-	// if err2 != nil {
-	// 	panic(fmt.Errorf("fatal error loading config file: %s", err2))
-	// }
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("fatal error loading config file: %s", err))
+	}
 
 	viper.Set("app.root", appdir)
-
 }
 
 func main() {
 	initConfig()
 	e := initEcho()
 	aGroup := e.Group("/auth")
-	auth.NewHttpHandler(aGroup)
+	aStore := auth.NewAuthStore(viper.GetString("auth_service.url"))
+	auth.NewHttpHandler(aGroup, aStore)
 	p := fmt.Sprintf(":%s", viper.GetString("PORT"))
 	e.Logger.Fatal(e.Start(p))
 }

@@ -23,6 +23,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer conn.Close()
 
 	client := genproto.NewAuthServiceClient(conn)
