@@ -64,6 +64,17 @@ func (s *UserStore) FindUserById(id uint) (*model.User, error) {
 	return &m, nil
 }
 
+func (s *UserStore) FindUserBy(q *model.User) (*model.User, error) {
+	var m model.User
+	if err := s.db.Where(q).First(&m).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &m, nil
+}
+
 func (s *UserStore) Update(m *model.User) error {
 	err := s.db.Model(m).Updates(m).Error // update"s" non-blank
 	if err != nil {

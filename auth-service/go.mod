@@ -10,6 +10,7 @@ require (
 	github.com/lib/pq v1.1.1
 	github.com/rs/xid v1.2.1
 	github.com/spf13/viper v1.6.3
+	golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd
 	golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.21.0

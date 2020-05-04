@@ -28,7 +28,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    string token = 1;
+    bool authorized = 1;
 }
 
 message GetUserRequest {

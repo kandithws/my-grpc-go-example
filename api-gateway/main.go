@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/spf13/viper"
 
-	"github.com/kandithws/sharespace-api/api-gateway/auth"
+	"github.com/kandithws/sharespace-api/api-gateway/src/auth"
 )
 
 func initEcho() *echo.Echo {

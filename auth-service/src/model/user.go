@@ -15,7 +15,7 @@ type BaseModel struct {
 // Use validate only for GRPC forms validation
 type User struct {
 	BaseModel
-	XID      string `json:"gid" gorm:"unique; not null"`
+	XID      string `json:"id" gorm:"unique; not null"`
 	Username string `json:"username" gorm:"unique; not null" validate:"required"`
 	Password string `json:"password" validate:"required"`
 	Email    string `json:"email" gorm:"unique; not null" validate:"required"`
