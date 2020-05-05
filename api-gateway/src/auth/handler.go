@@ -7,7 +7,9 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	authproto "github.com/kandithws/sharespace-api/api-gateway/src/genproto/auth-service"
+	"github.com/kandithws/sharespace-api/api-gateway/src/middleware"
 	"github.com/labstack/echo/v4"
+	"github.com/spf13/viper"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -28,6 +30,7 @@ func NewHttpHandler(e *echo.Group, s *AuthStore) {
 
 	e.POST("/login", h.Login)
 	e.POST("/register", h.Register)
+	e.GET("/testAuth", h.TestAuth, middleware.NewJWTAuthMiddleware())
 }
 
 func GetHttpErrorFromGRPCError(err error, c echo.Context) error {
@@ -81,20 +84,15 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	// Create token
-	token := jwt.New(jwt.SigningMethodHS256)
+	claims := &middleware.JWTClaims{}
+	claims.UserID = res.User.Id
+	claims.Username = res.User.Username
+	claims.UserEmail = res.User.Email
+	claims.ExpiresAt = time.Now().Add(time.Hour * 72).Unix()
 
-	// Set claims
-	claims := token.Claims.(jwt.MapClaims)
-	// TODO -- add user data to claims
-	var userJSON map[string]interface{}
-	if err := BindJSON(res.User, &userJSON); err != nil {
-		return MakeErrorResponse(c, http.StatusInternalServerError, err)
-	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	claims["user"] = userJSON
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
-
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(viper.GetString("app.key")))
 	if err != nil {
 		return err
 	}
@@ -102,4 +100,14 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"token": t,
 	})
+}
+
+func (h *AuthHandler) TestAuth(c echo.Context) error {
+	user, err := middleware.GetAuthUser(c)
+
+	if err != nil {
+		return MakeErrorResponse(c, http.StatusInternalServerError, err)
+	}
+
+	return c.JSON(http.StatusOK, user)
 }
